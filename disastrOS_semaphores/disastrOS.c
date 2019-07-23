@@ -145,6 +145,8 @@ void disastrOS_start(void (*f)(void*), void* f_args, char* logfile){
   PCB_init();
   Timer_init();
   Resource_init();
+  Semaphore_init();
+  SemDescriptor_init();
   Descriptor_init();
   init_pcb=0;
 
@@ -305,6 +307,21 @@ int disastrOS_destroyResource(int resource_id) {
   return disastrOS_syscall(DSOS_CALL_DESTROY_RESOURCE, resource_id);
 }
 
+int disastrOS_semOpen(int semnum){
+  return disastrOS_syscall(DSOS_CALL_SEMOPEN,semnum); 
+}
+
+int disastrOS_semClose(int semnum){
+  return disastrOS_syscall(DSOS_CALL_SEMCLOSE,semnum); 
+}
+
+int disastrOS_semPost(int semnum){
+  return disastrOS_syscall(DSOS_CALL_SEMPOST,semnum); 
+}
+
+int disastrOS_semWait(int semnum){
+  return disastrOS_syscall(DSOS_CALL_SEMWAIT,semnum); 
+}
 
 
 void disastrOS_printStatus(){

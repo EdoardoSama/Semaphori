@@ -10,9 +10,15 @@
 #include "disastrOS_globals.h"
 
 void internal_semClose(){
-  //1 retrieve the fd of the resource to close
+  
   int fd=running->syscall_args[0];
 
+  SemDescriptor* semdes = SemDescriptorList_byFd(&running->sem_descriptors, fd);
+	if(!semdes){
+		running->syscall_retvalue = -1;
+		return;
+	}
+  
 
   Semaphore* res = SemaphoreList_byId(&(semaphores_list), fd);
   if(!res){
@@ -21,20 +27,23 @@ void internal_semClose(){
 		return;
   }
 
-  SemDescriptor* semdes = (SemDescriptor*)running->sem_descriptors.first;
-  if(!semdes){
-    printf("Errore: descrittore non trovato\n");
-		running->syscall_retvalue=-1;
-		return;
-  }
-  while(semdes != NULL){
-    SemDescriptorPtr* semptr = (SemDescriptorPtr*) semdes->ptr;
-    if(!semptr){
-      printf("Errore: puntatore a descrittore non trovato\n");
-      running->syscall_retvalue=-1;
-      return;
-      }
-      List_detach(semptr, (ListItem*)semptr->descriptor);
-      semdes->list.next;
-    } 
+  SemDescriptorPtr* semptr = (SemDescriptorPtr*) semdes->ptr;
+  if(!semptr){
+    printf("Errore: puntatore a descrittore non trovato\n");
+    running->syscall_retvalue=-1;
+    return;
+    }
+  
+  List_detach(&res->descriptors, (ListItem*) semdes->ptr);
+  List_detach(&running->sem_descriptors, (ListItem*)semdes);
+  SemDescriptorPtr_free(semptr);
+	SemDescriptor_free(semdes);
+
+  if(res->descriptors.size == 0 && res->waiting_descriptors.size == 0){
+		printf("Semaphore %d will be deleted\n", res->id);
+		List_detach(&semaphores_list, (ListItem*) res);
+		Semaphore_free(res);
+	}
+
+  List_detach(&(semaphores_list), res);
   }
