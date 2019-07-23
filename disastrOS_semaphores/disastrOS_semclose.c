@@ -12,27 +12,35 @@
 void internal_semClose(){
   
   int fd=running->syscall_args[0];
-
-  SemDescriptor* semdes = SemDescriptorList_byFd(&running->sem_descriptors, fd);
-	if(!semdes){
-		running->syscall_retvalue = -1;
-		return;
-	}
   
-
   Semaphore* res = SemaphoreList_byId(&(semaphores_list), fd);
   if(!res){
-    printf("Errore: semaforo non in lista\n");
+    printf("Errore: semaforo not found\n");
 		running->syscall_retvalue=-1;
 		return;
   }
 
-  SemDescriptorPtr* semptr = (SemDescriptorPtr*) semdes->ptr;
-  if(!semptr){
-    printf("Errore: puntatore a descrittore non trovato\n");
-    running->syscall_retvalue=-1;
-    return;
-    }
+  SemDescriptor* semdes = (SemDescriptor*)running->sem_descriptors.first;
+	if(!semdes){
+    printf("Errore: SemDescriptor not found\n");
+		running->syscall_retvalue=-1;
+		return;
+  }
+  while(semdes){
+    if(semdes->semaphore->id==res->id) break;
+    else semdes=(SemDescriptor*)semdes->list.next;
+  }
+  
+  SemDescriptorPtr* semptr = SemDescriptorList_byFd(semdes->ptr, res->id);
+	if(!semptr){
+    printf("Errore: SemDescriptor not found\n");
+		running->syscall_retvalue=-1;
+		return;
+  }
+  while(semptr){
+		if(semptr->descriptor->fd==semdes->fd) break;
+		else semptr=(SemDescriptorPtr*)semptr->list.next;
+			}
   
   List_detach(&res->descriptors, (ListItem*) semdes->ptr);
   List_detach(&running->sem_descriptors, (ListItem*)semdes);
