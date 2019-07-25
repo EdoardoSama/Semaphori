@@ -56,9 +56,10 @@ void internal_semOpen(){
 		
 		//inserisco il semaforo nella lista dei descrittori dei semafori
 		List_insert(&running->sem_descriptors, running->sem_descriptors.last, (ListItem*)sem_des);
-		
 		sem_des->ptr=desPtr;
 		List_insert(&res->descriptors, res->descriptors.last, (ListItem*)desPtr);
+		
+		running->last_sem_fd++;
 		running->syscall_retvalue=id_number;
 	}
 }
