@@ -32,7 +32,7 @@ void internal_semWait(){
 		return;
   }
   //decremento il contatore del semaforo, è quello che fa il semwait
-  printf("\n#%d count:%d verrà decrementato\n", semnum, res->count);
+  printf("\nsem_wait invocata su semaforo #%d count:%d verrà decrementato\n", semnum+1, res->count);
   res->count--;
   //se il contatore è a 0, stacco il puntatore a descrittore dal semaforo, e lo metto nella lista
   //in waiting, sempre appartenente al semaforo
