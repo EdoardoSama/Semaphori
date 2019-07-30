@@ -41,7 +41,7 @@ void disastrOS_printStatus();
 
 
 //semaphori
-int disastrOS_semOpen(int semnum);
+int disastrOS_semOpen(int semnum, int semval);
 
 int disastrOS_semClose(int semnum);
 

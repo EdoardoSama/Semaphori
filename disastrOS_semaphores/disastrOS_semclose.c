@@ -11,18 +11,18 @@
 
 void internal_semClose(){
   
-  int fd=running->syscall_args[0];
+  int semnum=running->syscall_args[0];
   
-  Semaphore* res = SemaphoreList_byId(&(semaphores_list), fd);
+  Semaphore* res = SemaphoreList_byId(&(semaphores_list), semnum);
   if(!res){
-    printf("Errore: semaforo not found\n");
+    //printf("Errore: semaforo non trovato, stavo cercando il semaforo #%d\n", semnum);
 		running->syscall_retvalue=-1;
 		return;
   }
 
   SemDescriptor* semdes = (SemDescriptor*)running->sem_descriptors.first;
 	if(!semdes){
-    printf("Errore: SemDescriptor not found\n");
+    printf("\nErrore: SemDescriptor non trovato\n");
 		running->syscall_retvalue=-1;
 		return;
   }
@@ -31,14 +31,14 @@ void internal_semClose(){
     else semdes=(SemDescriptor*)semdes->list.next;
   }
   if(semdes==NULL){
-    printf("Errore: semaphoro non associato al processo\n");
+    printf("\nErrore: semaphoro non associato al processo\n");
 		running->syscall_retvalue=-1;
     return;
   }
   
   SemDescriptorPtr* semptr = (SemDescriptorPtr*)res->descriptors.first;
 	if(!semptr){
-    printf("Errore: SemDescriptorPtr not found\n");
+    printf("\nErrore: SemDescriptorPtr non trovato\n");
 		running->syscall_retvalue=-1;
 		return;
   }
@@ -47,7 +47,7 @@ void internal_semClose(){
 		else semptr=(SemDescriptorPtr*)semptr->list.next;
 	}
   if(semptr==NULL){
-    printf("Errore: \n");
+    printf("\nErrore: semaphoro non associato al processo\n");
 		running->syscall_retvalue=-1;
     return;
   }
@@ -58,7 +58,7 @@ void internal_semClose(){
 	SemDescriptor_free(semdes);
 
   if(res->descriptors.size == 0 && res->waiting_descriptors.size == 0){
-		printf("Semaphore %d will be deleted\n", res->id);
+		printf("\nSemaforo #%d verrà terminato\n", res->id);
 		List_detach(&semaphores_list, (ListItem*) res);
 		Semaphore_free(res);
 	}
