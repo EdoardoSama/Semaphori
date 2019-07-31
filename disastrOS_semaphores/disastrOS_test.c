@@ -11,8 +11,7 @@ int buffer[1]={0};
 
 //paradigma n producer n consumer, Sistemi di Calcolo 2 (rinfrescato da Wikipedia)
 void producer(int* buffer, int fd_mutex, int fd_fill, int fd_empty){
-  
-  for(int i=0; i<10; i++){
+  for(int i=0; i<(rand()%10); i++){
     disastrOS_semWait(fd_empty);
     disastrOS_semWait(fd_mutex);
 
@@ -29,7 +28,7 @@ void producer(int* buffer, int fd_mutex, int fd_fill, int fd_empty){
 
 void consumer(int* buffer, int fd_mutex, int fd_fill, int fd_empty){
 
-  for(int i=0; i<10; i++){
+  for(int i=0; i<(rand()%10); i++){
     disastrOS_semWait(fd_fill); 
     disastrOS_semWait(fd_mutex);
 
@@ -56,10 +55,9 @@ void childFunction(void* args){
   printf("Hello, I am the child function %d\n",disastrOS_getpid());
   printf("I will iterate a bit, before terminating\n");
   //printf("PID: %d, terminating\n", disastrOS_getpid());
-
   int mutex = disastrOS_semOpen(1, 1); 
   int fill = disastrOS_semOpen(2, 0); 
-  int empty = disastrOS_semOpen(3, 10); 
+  int empty = disastrOS_semOpen(3, 30); 
 
   
   disastrOS_sleep(10-disastrOS_getpid());
@@ -102,6 +100,7 @@ void initFunction(void* args) {
     --alive_children;
   }
   printf("shutdown!\n");
+  printf("\nStato finale buffer: %d\n", buffer[0]);
   disastrOS_shutdown();
 }
 
