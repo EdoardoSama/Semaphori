@@ -18,7 +18,7 @@ void internal_semPost(){
 	//acchiappo il semaforo
 	Semaphore* res = semdesc->semaphore;
 	//incremento il contatore, è quello che fa il sempost
-	printf("\nsem_post invocata su semaforo #%d count:%d verrà incrementato\n", semnum+1, res->count);
+	//printf("\nsem_post invocata su semaforo #%d count:%d verrà incrementato\n", semnum+1, res->count);
 	(res->count)++;
 
 	//se il contatore è a 0 (o meno), pesco il primo puntatore a descrittore dalla lista di waiting,
