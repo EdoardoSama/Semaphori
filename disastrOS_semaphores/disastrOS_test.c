@@ -7,10 +7,7 @@
 #include "disastrOS_semaphore.h"
 #include "disastrOS_semdescriptor.h"
 
-int buffer[20]={0};
-int in_idx=0;
-int out_idx=0;
-
+int buffer[1]={0};
 
 //paradigma n producer n consumer, Sistemi di Calcolo 2 (rinfrescato da Wikipedia)
 void producer(int* buffer, int fd_mutex, int fd_fill, int fd_empty){
@@ -19,8 +16,8 @@ void producer(int* buffer, int fd_mutex, int fd_fill, int fd_empty){
     disastrOS_semWait(fd_empty);
     disastrOS_semWait(fd_mutex);
 
-    buffer[in_idx] = i+1;
-    in_idx = (in_idx+1)%20;
+    buffer[0] +=1;
+    printf("\nNumero items: %d\n", buffer[0]); 
     printf("\nIl processo %d (PRODUCER) accede al buffer\n",disastrOS_getpid());
     disastrOS_sleep(disastrOS_getpid()); 
 
@@ -36,8 +33,8 @@ void consumer(int* buffer, int fd_mutex, int fd_fill, int fd_empty){
     disastrOS_semWait(fd_fill); 
     disastrOS_semWait(fd_mutex);
 
-    buffer[out_idx] = 0;  
-    out_idx = (out_idx+1)%20;
+    buffer[0] -= 1;
+    printf("\nNumero items: %d\n", buffer[0]); 
     disastrOS_sleep(disastrOS_getpid());
     printf("\nIl processo %d (CONSUMER) accede al buffer\n",disastrOS_getpid());
     disastrOS_semPost(fd_mutex);
@@ -62,12 +59,12 @@ void childFunction(void* args){
 
   int mutex = disastrOS_semOpen(1, 1); 
   int fill = disastrOS_semOpen(2, 0); 
-  int empty = disastrOS_semOpen(3, 20); 
+  int empty = disastrOS_semOpen(3, 10); 
 
   
   disastrOS_sleep(10-disastrOS_getpid());
-
-  if (disastrOS_getpid()%2==0){
+  int r = rand() % 21;
+  if ( r % 2==0){
     printf("\nIl processo #%d è PRODUTTORE\n", running->pid);
     producer(buffer, mutex, fill, empty);
   }
